@@ -5,9 +5,10 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
+import org.jboss.netty.util.CharsetUtil;
 
 import com.cynical.euchre.netty.commands.EuchreCommand;
-import com.cynical.euchre.netty.commands.HasCommand;
+import com.cynical.euchre.netty.commands.model.CommandPayloadEncoderModel;
 import com.google.gson.Gson;
 
 public class EuchreCommandEncoder extends OneToOneEncoder {
@@ -34,20 +35,20 @@ public class EuchreCommandEncoder extends OneToOneEncoder {
 	@Override
 	protected Object encode(ChannelHandlerContext ctx, Channel channel,
 			Object msg) throws Exception {
-		if(msg instanceof HasCommand) {
+		if(msg instanceof CommandPayloadEncoderModel) {
 			
 			Gson gson = new Gson();
-			HasCommand c = (HasCommand) msg;
+			CommandPayloadEncoderModel c = (CommandPayloadEncoderModel) msg;
 			EuchreCommand command = c.getCommand();
 			
 			//	Set Command Length and Byte Array
 			String commandString = gson.toJson(command);
-			commandBytes = commandString.getBytes();
+			commandBytes = commandString.getBytes(CharsetUtil.UTF_8);
 			commandLength = commandBytes.length;
 			
 			//	Set Payload Length and Byte Array
-			String payload = gson.toJson(c);
-			payloadBytes = payload.getBytes();
+			String payload = gson.toJson(c.getPayload());
+			payloadBytes = payload.getBytes(CharsetUtil.UTF_8);
 			payloadLength = payloadBytes.length;
 			
 			int size = 4 + commandLength + 4 + payloadLength; // (int) + (byte[]) + (int) + (byte[])
