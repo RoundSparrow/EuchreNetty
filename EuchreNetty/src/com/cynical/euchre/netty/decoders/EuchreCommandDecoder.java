@@ -25,6 +25,10 @@ public class EuchreCommandDecoder extends ReplayingDecoder<EuchreCommandDecoder.
 	EuchreCommand command;
 	int payloadLength = 0;
 	String payload;
+	
+	public EuchreCommandDecoder() {
+		super(DecodingState.COMMAND_LENGTH);
+	}
 
 	@Override
 	protected Object decode(ChannelHandlerContext ctx, Channel channel,
@@ -44,6 +48,7 @@ public class EuchreCommandDecoder extends ReplayingDecoder<EuchreCommandDecoder.
 			checkpoint(DecodingState.PAYLOAD);
 		case PAYLOAD:
 			byte[] payloadBytes = new byte[payloadLength];
+			buffer.readBytes(payloadBytes, 0, payloadLength);
 			payload = new String(payloadBytes, CharsetUtil.UTF_8);
 		}
 		
